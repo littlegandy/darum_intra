@@ -1,0 +1,54 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: intra-backend
+  namespace: intra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: intra-backend
+  template:
+    metadata:
+      labels:
+        app: intra-backend
+    spec:
+      containers:
+        - name: backend
+          image: darumtech/intra-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: intra-backend-secrets
+                  key: DB_URL
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: intra-backend-secrets
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: intra-backend-secrets
+                  key: DB_PASSWORD
+            - name: JASYPT_ENCRYPTOR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: intra-backend-secrets
+                  key: JASYPT_ENCRYPTOR_PASSWORD
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20

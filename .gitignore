@@ -1,0 +1,37 @@
+﻿# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+.claude/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Vite
+frontend/dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Java/Gradle
+backend/build/
+backend/target/
+.gradle/
+
+# Logs
+*.log
+
+# Env
+.env
+.env.*
+
+# Temp
+*.tmp
+*.swp
+
+# Docker local data
+docker/data/

@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: intra-frontend
+  namespace: intra
+spec:
+  selector:
+    app: intra-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
