@@ -437,11 +437,17 @@ export default function ScheduleFormModal({
 
       if (mode === 'create') {
         // 생성 모드: dates 방식으로 전송
+        // 시간 정규화 (24:00 → 다음날 00:00)
+        const normalizedStart = normalizeDateTime(formData.startDate || selectedDates[0], formData.stime);
+        const normalizedEnd = normalizeDateTime(formData.endDate || selectedDates[selectedDates.length - 1], formData.etime);
+        
         const payload = {
           ...formData,
           dates: selectedDates,
           startDate: undefined,  // 명시적 제거
-          endDate: undefined     // 명시적 제거
+          endDate: undefined,    // 명시적 제거
+          stime: normalizedStart.timeStr,
+          etime: normalizedEnd.timeStr,
         };
         
         await onSubmit(payload as CreateScheduleRequest);
