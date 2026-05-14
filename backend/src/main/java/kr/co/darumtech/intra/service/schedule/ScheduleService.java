@@ -23,6 +23,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -141,7 +142,8 @@ public class ScheduleService {
         
         // dates 필드가 있으면 우선 사용
         if (request.getDates() != null && !request.getDates().isEmpty()) {
-            targetDates = request.getDates();
+            targetDates = new ArrayList<>(request.getDates());
+            Collections.sort(targetDates);
             log.info("개별 날짜 선택 방식 사용: dates={}", targetDates);
         } else {
             // 기존 범위 방식
@@ -331,7 +333,7 @@ public class ScheduleService {
                             .orElseThrow(() -> new IllegalArgumentException("吏곸썝??李얠쓣 ???놁뒿?덈떎: " + request.getEmpno()));
 
                     if (!isAdmin && !employee.getEmpno().equals(requesterEmpno)) {
-                        throw new AccessDeniedException("蹂몄씤 ?쇱젙留??쇨큵 ?앹꽦?????덉뒿?덈떎.");
+                        throw new AccessDeniedException("본인 일정만 일괄 생성할 수 있습니다.");
                     }
 
                     LocalDate start = request.getStartDate();
