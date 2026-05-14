@@ -489,6 +489,51 @@ export default function ScheduleFormModal({
               onChange={handleDateRangeChange}
             />
 
+            {selectedDates.length > 0 && (
+              <div className="rounded border border-gray-200 bg-gray-50 p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">
+                    선택된 날짜 ({selectedDates.length}개)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDates([])}
+                    className="text-xs text-red-600 hover:text-red-800"
+                  >
+                    전체 삭제
+                  </button>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {selectedDates.map(date => {
+                    const dateObj = new Date(date);
+                    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
+                    const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+                    
+                    return (
+                      <button
+                        key={date}
+                        type="button"
+                        onClick={() => setSelectedDates(prev => prev.filter(d => d !== date))}
+                        className={`flex items-center gap-1 rounded px-2 py-1 text-sm transition ${
+                          isWeekend
+                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        }`}
+                      >
+                        <span>{date.slice(5)} ({dayOfWeek})</span>
+                        <span className="text-xs">×</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <div className="mt-2 text-xs text-gray-500">
+                  💡 날짜를 클릭하면 제거됩니다. 범위를 다시 선택하면 목록이 초기화됩니다.
+                </div>
+              </div>
+            )}
+
             <label className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-200 px-3 py-2">
               <input
                 type="checkbox"
