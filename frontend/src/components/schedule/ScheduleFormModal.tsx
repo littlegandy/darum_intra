@@ -276,6 +276,44 @@ export default function ScheduleFormModal({
     }
   }, [customers, formData.custno, formData.location, isOpen]);
 
+  // 날짜 범위 생성 함수
+  const generateDateRange = (start: string, end: string, includeWeekends: boolean): string[] => {
+    const dates: string[] = [];
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dayOfWeek = d.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      
+      if (includeWeekends || !isWeekend) {
+        dates.push(d.toISOString().split('T')[0]);
+      }
+    }
+    
+    return dates;
+  };
+
+  // 범위 선택 핸들러
+  const handleDateRangeChange = (start: string, end: string) => {
+    setFormData(prev => ({ ...prev, startDate: start, endDate: end }));
+    
+    // 날짜 범위로부터 날짜 목록 자동 생성
+    const dates = generateDateRange(start, end, formData.holiday ?? true);
+    setSelectedDates(dates);
+  };
+
+  // 주말 체크박스 변경 핸들러
+  const handleHolidayChange = (checked: boolean) => {
+    setFormData(prev => ({ ...prev, holiday: checked }));
+    
+    // 이미 선택된 범위가 있으면 칩 재생성
+    if (formData.startDate && formData.endDate) {
+      const dates = generateDateRange(formData.startDate, formData.endDate, checked);
+      setSelectedDates(dates);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -283,7 +321,11 @@ export default function ScheduleFormModal({
 
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
+      if (name === 'holiday') {
+        handleHolidayChange(checked);
+      } else {
+        setFormData((prev) => ({ ...prev, [name]: checked }));
+      }
     } else if (name === 'custno' || name === 'prodno' || name === 'suppno') {
       const numeric = value ? Number(value) : undefined;
       if (name === 'custno') {
@@ -449,9 +491,7 @@ export default function ScheduleFormModal({
               required
               startInputRef={startInputRef}
               endInputRef={endInputRef}
-              onChange={(startDate, endDate) =>
-                setFormData((prev) => ({ ...prev, startDate, endDate }))
-              }
+              onChange={handleDateRangeChange}
             />
 
             <label className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-200 px-3 py-2">
