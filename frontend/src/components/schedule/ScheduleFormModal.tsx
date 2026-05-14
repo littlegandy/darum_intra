@@ -76,6 +76,8 @@ export default function ScheduleFormModal({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [additionalDate, setAdditionalDate] = useState('');
 
   const timeOptions = useMemo(() => {
     const options: string[] = [];
@@ -148,6 +150,14 @@ export default function ScheduleFormModal({
     return () => {
       document.body.style.overflow = originalOverflow;
     };
+  }, [isOpen]);
+
+  // 모달 닫힐 때 날짜 선택 상태 초기화
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedDates([]);
+      setAdditionalDate('');
+    }
   }, [isOpen]);
 
   useEffect(() => {
@@ -250,6 +260,13 @@ export default function ScheduleFormModal({
       setLoadingMaster(false);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedDates([]);
+      setAdditionalDate('');
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || !formData.custno) return;

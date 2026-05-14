@@ -39,8 +39,21 @@ export interface CreateScheduleRequest {
   suppno?: number;
   contents?: string;
   location?: string;
-  startDate: string;
-  endDate: string;
+  /**
+   * 시작 날짜 (범위 방식 사용 시)
+   * dates 필드가 있으면 무시됨
+   */
+  startDate?: string;
+  /**
+   * 종료 날짜 (범위 방식 사용 시)
+   * dates 필드가 있으면 무시됨
+   */
+  endDate?: string;
+  /**
+   * 개별 날짜 목록 (직접 선택 방식)
+   * 이 필드가 있으면 startDate/endDate보다 우선 처리됨
+   */
+  dates?: string[];
   stime?: string;
   rtime?: string;
   etime?: string;
