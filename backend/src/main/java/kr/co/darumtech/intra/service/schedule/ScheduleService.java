@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * ?ㅼ?以?愿由??쒕퉬?? */
+ * 스케줄 서비스
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -43,11 +44,11 @@ public class ScheduleService {
     private final HolidayService holidayService;
 
     /**
-     * ???ㅼ?以?議고쉶 (湲곌컙蹂?
+     * 내 스케줄 조회 (기간별)
      */
     public List<ScheduleDto> getMySchedules(String userId, LocalDate startDate, LocalDate endDate) {
         Employee employee = employeeRepository.findByIdWithDepartment(userId)
-                .orElseThrow(() -> new IllegalArgumentException("吏곸썝??李얠쓣 ???놁뒿?덈떎: " + userId));
+                .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다: " + userId));
 
         List<Schedule> schedules = scheduleRepository.findByEmployeeAndDateRange(
                 employee.getEmpno(), startDate, endDate
@@ -59,11 +60,11 @@ public class ScheduleService {
     }
 
     /**
-     * ?뱀젙 吏곸썝???ㅼ?以?議고쉶 (湲곌컙蹂?
+     * 특정 직원의 스케줄 조회 (기간별)
      */
     public List<ScheduleDto> getEmployeeSchedules(Long empno, LocalDate startDate, LocalDate endDate) {
         Employee employee = employeeRepository.findById(empno)
-                .orElseThrow(() -> new IllegalArgumentException("吏곸썝??李얠쓣 ???놁뒿?덈떎: " + empno));
+                .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다: " + empno));
 
         List<Schedule> schedules = scheduleRepository.findByEmployeeAndDateRange(
                 empno, startDate, endDate
@@ -75,7 +76,7 @@ public class ScheduleService {
     }
 
     /**
-     * 遺?쒕퀎 ?ㅼ?以?議고쉶 (?뱀젙 ?좎쭨)
+     * 부서별 스케줄 조회 (특정 날짜)
      */
     public List<ScheduleDto> getDepartmentSchedulesByDate(Long deptno, LocalDate workDate) {
         List<Schedule> schedules = scheduleRepository.findByDepartmentAndDate(deptno, workDate);
@@ -86,7 +87,7 @@ public class ScheduleService {
     }
 
     /**
-     * 遺?쒕퀎 ?ㅼ?以?議고쉶 (湲곌컙蹂?
+     * 부서별 스케줄 조회 (기간별)
      */
     public List<ScheduleDto> getDepartmentSchedulesByDateRange(Long deptno, LocalDate startDate, LocalDate endDate) {
         List<Schedule> schedules = scheduleRepository.findByDepartmentAndDateRange(deptno, startDate, endDate);
@@ -97,7 +98,7 @@ public class ScheduleService {
     }
 
     /**
-     * 怨좉컼?щ퀎 ?ㅼ?以?議고쉶 (湲곌컙蹂?
+     * 고객사별 스케줄 조회 (기간별)
      */
     public List<ScheduleDto> getCustomerSchedules(Long custno, LocalDate startDate, LocalDate endDate) {
         List<Schedule> schedules = scheduleRepository.findByCustomerAndDateRange(custno, startDate, endDate);
@@ -108,7 +109,7 @@ public class ScheduleService {
     }
 
     /**
-     * ?꾩껜 ?ㅼ?以?議고쉶 (湲곌컙蹂?
+     * 전체 스케줄 조회 (기간별)
      */
     public List<ScheduleDto> getAllSchedules(LocalDate startDate, LocalDate endDate) {
         List<Schedule> schedules = scheduleRepository.findByDateRange(startDate, endDate);
@@ -119,27 +120,27 @@ public class ScheduleService {
     }
 
     /**
-     * ?ㅼ?以??곸꽭 議고쉶
+     * 스케줄 상세 조회
      */
     public ScheduleDto getSchedule(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("?ㅼ?以꾩쓣 李얠쓣 ???놁뒿?덈떎: " + scheduleId));
+                .orElseThrow(() -> new IllegalArgumentException("스케줄을 찾을 수 없습니다: " + scheduleId));
 
         return convertToDto(schedule);
     }
 
     /**
-     * ?ㅼ?以??앹꽦
+     * 스케줄 생성
      */
     @Transactional
     public ScheduleDto createSchedule(CreateScheduleRequest request, String requesterId, boolean isAdmin) {
         Employee employee = employeeRepository.findById(request.getEmpno())
-                .orElseThrow(() -> new IllegalArgumentException("吏곸썝??李얠쓣 ???놁뒿?덈떎: " + request.getEmpno()));
+                .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다: " + request.getEmpno()));
 
         assertSameEmployeeOrAdmin(employee.getEmpno(), requesterId, isAdmin);
 
         List<LocalDate> targetDates;
-        
+
         // dates 필드가 있으면 우선 사용
         if (request.getDates() != null && !request.getDates().isEmpty()) {
             targetDates = new ArrayList<>(request.getDates());
@@ -150,12 +151,12 @@ public class ScheduleService {
             LocalDate startDate = request.getStartDate();
             LocalDate endDate = request.getEndDate();
             if (startDate == null || endDate == null) {
-                throw new IllegalArgumentException("?쒖옉?쇨낵 醫낅즺?쇱쓣 紐⑤몢 ?낅젰?댁빞 ?⑸땲??");
+                throw new IllegalArgumentException("시작일과 종료일을 모두 입력해야 합니다");
             }
             if (endDate.isBefore(startDate)) {
-                throw new IllegalArgumentException("醫낅즺?쇱? ?쒖옉???댄썑?ъ빞 ?⑸땲??");
+                throw new IllegalArgumentException("종료일은 시작일 이후여야 합니다");
             }
-            
+
             // 범위 내 날짜 생성 (휴일 필터링 적용)
             targetDates = new ArrayList<>();
             boolean includeHoliday = Boolean.TRUE.equals(request.getHoliday());
@@ -167,7 +168,7 @@ public class ScheduleService {
                 }
                 cursor = cursor.plusDays(1);
             }
-            log.info("범위 선택 방식 사용: startDate={}, endDate={}, includeHoliday={}, count={}", 
+            log.info("범위 선택 방식 사용: startDate={}, endDate={}, includeHoliday={}, count={}",
                     startDate, endDate, includeHoliday, targetDates.size());
         }
 
@@ -178,7 +179,7 @@ public class ScheduleService {
         List<Schedule> schedulesToSave = new ArrayList<>();
         for (LocalDate date : targetDates) {
             boolean isHoliday = isWeekend(date) || holidayService.isHoliday(date);
-            
+
             Schedule schedule = new Schedule();
             schedule.setEmployee(employee);
             schedule.setWorkDate(date);
@@ -190,22 +191,22 @@ public class ScheduleService {
             schedule.setStartNo(request.getStartNo() != null ? request.getStartNo() : 0L);
             schedule.setHoliday(isHoliday);
 
-            // ?좏깮???곌?愿怨??ㅼ젙
+            // 고객/제품/지원 설정
             if (request.getCustno() != null) {
                 Customer customer = customerRepository.findById(request.getCustno())
-                        .orElseThrow(() -> new IllegalArgumentException("怨좉컼?щ? 李얠쓣 ???놁뒿?덈떎: " + request.getCustno()));
+                        .orElseThrow(() -> new IllegalArgumentException("고객사를 찾을 수 없습니다: " + request.getCustno()));
                 schedule.setCustomer(customer);
             }
 
             if (request.getProdno() != null) {
                 Product product = productRepository.findById(request.getProdno())
-                        .orElseThrow(() -> new IllegalArgumentException("?쒗뭹??李얠쓣 ???놁뒿?덈떎: " + request.getProdno()));
+                        .orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다: " + request.getProdno()));
                 schedule.setProduct(product);
             }
 
             if (request.getSuppno() != null) {
                 Support support = supportRepository.findById(request.getSuppno())
-                        .orElseThrow(() -> new IllegalArgumentException("吏?먯쑀?뺤쓣 李얠쓣 ???놁뒿?덈떎: " + request.getSuppno()));
+                        .orElseThrow(() -> new IllegalArgumentException("지원사를 찾을 수 없습니다: " + request.getSuppno()));
                 schedule.setSupport(support);
             }
 
@@ -213,7 +214,7 @@ public class ScheduleService {
             schedulesToSave.add(schedule);
         }
 
-        // 癒쇱? ?섎굹瑜???ν빐 startNo 湲곕컲 ???뺣낫
+        // 첫 번째 저장을 통해 startNo 기준 그룹화
         Schedule first = schedulesToSave.remove(0);
         Schedule savedFirst = scheduleRepository.save(first);
         Long startNo = savedFirst.getNo();
@@ -224,21 +225,21 @@ public class ScheduleService {
                 .toList();
 
         List<Schedule> savedRemaining = remaining.isEmpty() ? List.of() : scheduleRepository.saveAll(remaining);
-        scheduleRepository.save(savedFirst); // startNo ?낅뜲?댄듃 諛섏쁺
+        scheduleRepository.save(savedFirst); // startNo 업데이트 저장
 
-        log.info("?ㅼ?以??앹꽦 ?꾨즺: count={}, startNo={}, empno={}, dates={}", 
+        log.info("스케줄 생성 완료: count={}, startNo={}, empno={}, dates={}",
                 1 + savedRemaining.size(), startNo, employee.getEmpno(), targetDates);
 
         return convertToDto(savedFirst);
     }
 
     /**
-     * ?ㅼ?以??섏젙
+     * 스케줄 수정
      */
     @Transactional
     public ScheduleDto updateSchedule(Long scheduleId, UpdateScheduleRequest request, String requesterId, boolean isAdmin) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("?ㅼ?以꾩쓣 李얠쓣 ???놁뒿?덈떎: " + scheduleId));
+                .orElseThrow(() -> new IllegalArgumentException("스케줄을 찾을 수 없습니다: " + scheduleId));
 
         assertSameEmployeeOrAdmin(schedule.getEmployee().getEmpno(), requesterId, isAdmin);
 
@@ -250,7 +251,7 @@ public class ScheduleService {
                 : List.of(schedule);
 
         for (Schedule s : targets) {
-            // 湲곕낯 ?꾨뱶 ?낅뜲?댄듃
+            // 기본 필드 업데이트
             LocalDate newDate = request.getStartDate() != null ? request.getStartDate() : request.getEndDate();
             if (newDate != null) {
                 s.setWorkDate(newDate);
@@ -274,54 +275,54 @@ public class ScheduleService {
                 s.setHoliday(request.getHoliday());
             }
 
-            // ?좏깮???곌?愿怨??낅뜲?댄듃
+            // 고객/제품/지원 업데이트
             if (request.getCustno() != null) {
                 Customer customer = customerRepository.findById(request.getCustno())
-                        .orElseThrow(() -> new IllegalArgumentException("怨좉컼?щ? 李얠쓣 ???놁뒿?덈떎: " + request.getCustno()));
+                        .orElseThrow(() -> new IllegalArgumentException("고객사를 찾을 수 없습니다: " + request.getCustno()));
                 s.setCustomer(customer);
             }
 
             if (request.getProdno() != null) {
                 Product product = productRepository.findById(request.getProdno())
-                        .orElseThrow(() -> new IllegalArgumentException("?쒗뭹??李얠쓣 ???놁뒿?덈떎: " + request.getProdno()));
+                        .orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다: " + request.getProdno()));
                 s.setProduct(product);
             }
 
             if (request.getSuppno() != null) {
                 Support support = supportRepository.findById(request.getSuppno())
-                        .orElseThrow(() -> new IllegalArgumentException("吏?먯쑀?뺤쓣 李얠쓣 ???놁뒿?덈떎: " + request.getSuppno()));
+                        .orElseThrow(() -> new IllegalArgumentException("지원사를 찾을 수 없습니다: " + request.getSuppno()));
                 s.setSupport(support);
             }
         }
 
         List<Schedule> updated = scheduleRepository.saveAll(targets);
-        log.info("?ㅼ?以??섏젙 ?꾨즺: count={}, startNo={}", updated.size(), targetStartNo);
+        log.info("스케줄 수정 완료: count={}, startNo={}", updated.size(), targetStartNo);
 
         return convertToDto(updated.get(0));
     }
 
     /**
-     * ?ㅼ?以???젣
+     * 스케줄 삭제
      */
     @Transactional
     public void deleteSchedule(Long scheduleId, String requesterId, boolean isAdmin, boolean deleteGroup) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("?ㅼ?以꾩쓣 李얠쓣 ???놁뒿?덈떎: " + scheduleId));
+                .orElseThrow(() -> new IllegalArgumentException("스케줄을 찾을 수 없습니다: " + scheduleId));
 
         assertSameEmployeeOrAdmin(schedule.getEmployee().getEmpno(), requesterId, isAdmin);
 
         if (deleteGroup && schedule.getStartNo() != 0) {
             List<Schedule> group = scheduleRepository.findByStartNo(schedule.getStartNo());
             scheduleRepository.deleteAll(group);
-            log.info("臾띠쓬 ?ㅼ?以???젣 ?꾨즺: startNo={}, count={}", schedule.getStartNo(), group.size());
+            log.info("그룹 스케줄 삭제 완료: startNo={}, count={}", schedule.getStartNo(), group.size());
         } else {
             scheduleRepository.delete(schedule);
-            log.info("?ㅼ?以???젣 ?꾨즺: scheduleId={}", scheduleId);
+            log.info("스케줄 삭제 완료: scheduleId={}", scheduleId);
         }
     }
 
     /**
-     * ?곗냽 ?ㅼ?以??앹꽦 (?쇨큵 ?앹꽦)
+     * 연속 스케줄 생성 (일괄 생성)
      */
     @Transactional
     public List<ScheduleDto> createBatchSchedules(List<CreateScheduleRequest> requests, String requesterId, boolean isAdmin) {
@@ -330,7 +331,7 @@ public class ScheduleService {
         List<Schedule> schedules = requests.stream()
                 .map(request -> {
                     Employee employee = employeeRepository.findById(request.getEmpno())
-                            .orElseThrow(() -> new IllegalArgumentException("吏곸썝??李얠쓣 ???놁뒿?덈떎: " + request.getEmpno()));
+                            .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다: " + request.getEmpno()));
 
                     if (!isAdmin && !employee.getEmpno().equals(requesterEmpno)) {
                         throw new AccessDeniedException("본인 일정만 일괄 생성할 수 있습니다.");
@@ -339,10 +340,10 @@ public class ScheduleService {
                     LocalDate start = request.getStartDate();
                     LocalDate end = request.getEndDate();
                     if (start == null || end == null) {
-                        throw new IllegalArgumentException("?쒖옉?쇨낵 醫낅즺?쇱쓣 紐⑤몢 ?낅젰?댁빞 ?⑸땲??");
+                        throw new IllegalArgumentException("시작일과 종료일을 모두 입력해야 합니다");
                     }
                     if (end.isBefore(start)) {
-                        throw new IllegalArgumentException("醫낅즺?쇱? ?쒖옉???댄썑?ъ빞 ?⑸땲??");
+                        throw new IllegalArgumentException("종료일은 시작일 이후여야 합니다");
                     }
 
                     List<Schedule> items = new ArrayList<>();
@@ -365,7 +366,7 @@ public class ScheduleService {
                         schedule.setStartNo(0L);
                         schedule.setHoliday(isHoliday);
 
-                        // ?좏깮???곌?愿怨??ㅼ젙
+                        // 고객/제품/지원 설정
                         if (request.getCustno() != null) {
                             customerRepository.findById(request.getCustno()).ifPresent(schedule::setCustomer);
                         }
@@ -398,7 +399,7 @@ public class ScheduleService {
         List<Schedule> savedRemaining = schedules.isEmpty() ? List.of() : scheduleRepository.saveAll(schedules);
         scheduleRepository.save(savedFirst);
 
-        log.info("?곗냽 ?ㅼ?以??앹꽦 ?꾨즺: count={}, startNo={}", 1 + savedRemaining.size(), startNo);
+        log.info("연속 스케줄 생성 완료: count={}, startNo={}", 1 + savedRemaining.size(), startNo);
 
         List<Schedule> allSaved = new ArrayList<>();
         allSaved.add(savedFirst);
@@ -430,7 +431,8 @@ public class ScheduleService {
     }
 
     /**
-     * Entity瑜?DTO濡?蹂??     */
+     * Entity를 DTO로 변환
+     */
     private ScheduleDto convertToDto(Schedule schedule) {
         return ScheduleDto.builder()
                 .no(schedule.getNo())
@@ -468,17 +470,15 @@ public class ScheduleService {
 
         Long requesterEmpno = getRequesterEmpno(requesterId, false);
         if (!targetEmpno.equals(requesterEmpno)) {
-            throw new AccessDeniedException("蹂몄씤 ?쇱젙留??섏젙/??젣?????덉뒿?덈떎.");
+            throw new AccessDeniedException("본인 일정만 수정/삭제할 수 있습니다.");
         }
     }
 
     private Long getRequesterEmpno(String requesterId, boolean isAdmin) {
         return employeeRepository.findById(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        isAdmin ? "?붿껌 ?ъ슜?먮? ?뺤씤?????놁뒿?덈떎." : "?ъ슜???뺣낫瑜?李얠쓣 ???놁뒿?덈떎.")
+                        isAdmin ? "관리자 사용자를 확인할 수 없습니다." : "사용자 정보를 찾을 수 없습니다.")
                 )
                 .getEmpno();
     }
 }
-
-
