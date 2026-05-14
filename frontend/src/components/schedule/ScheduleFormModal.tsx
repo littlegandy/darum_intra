@@ -353,16 +353,25 @@ export default function ScheduleFormModal({
     e.preventDefault();
     setError(null);
 
-    if (!formData.startDate) {
-      setError(t('scheduleForm.errorRequired', { field: t('scheduleForm.startDate') }));
-      startInputRef.current?.click();
-      return;
-    }
+    // 날짜 검증 (create 모드일 때만)
+    if (mode === 'create') {
+      if (selectedDates.length === 0) {
+        setError('최소 1개 이상의 날짜를 선택해야 합니다');
+        return;
+      }
+    } else {
+      // edit 모드에서는 기존 날짜 검증 유지
+      if (!formData.startDate) {
+        setError(t('scheduleForm.errorRequired', { field: t('scheduleForm.startDate') }));
+        startInputRef.current?.click();
+        return;
+      }
 
-    if (!formData.endDate) {
-      setError(t('scheduleForm.errorRequired', { field: t('scheduleForm.endDate') }));
-      endInputRef.current?.click();
-      return;
+      if (!formData.endDate) {
+        setError(t('scheduleForm.errorRequired', { field: t('scheduleForm.endDate') }));
+        endInputRef.current?.click();
+        return;
+      }
     }
 
     if (!formData.custno) {
@@ -426,20 +435,29 @@ export default function ScheduleFormModal({
     try {
       setSubmitting(true);
 
-      const normalizedStart = normalizeDateTime(formData.startDate, formData.stime);
-      const normalizedEnd = normalizeDateTime(formData.endDate, formData.etime);
-      const payload = {
-        ...formData,
-        startDate: normalizedStart.dateStr,
-        endDate: normalizedEnd.dateStr,
-        stime: normalizedStart.timeStr,
-        etime: normalizedEnd.timeStr,
-      };
-
       if (mode === 'create') {
+        // 생성 모드: dates 방식으로 전송
+        const payload = {
+          ...formData,
+          dates: selectedDates,
+          startDate: undefined,  // 명시적 제거
+          endDate: undefined     // 명시적 제거
+        };
+        
         await onSubmit(payload as CreateScheduleRequest);
         localStorage.removeItem(draftKey);
       } else {
+        // 수정 모드: 기존 방식 유지 (dates 사용 안 함)
+        const normalizedStart = normalizeDateTime(formData.startDate!, formData.stime);
+        const normalizedEnd = normalizeDateTime(formData.endDate!, formData.etime);
+        const payload = {
+          ...formData,
+          startDate: normalizedStart.dateStr,
+          endDate: normalizedEnd.dateStr,
+          stime: normalizedStart.timeStr,
+          etime: normalizedEnd.timeStr,
+        };
+        
         const { empno, ...updateData } = payload;
         await onSubmit(updateData as UpdateScheduleRequest);
       }
