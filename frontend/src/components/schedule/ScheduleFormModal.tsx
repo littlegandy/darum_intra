@@ -262,13 +262,6 @@ export default function ScheduleFormModal({
   };
 
   useEffect(() => {
-    if (!isOpen) {
-      setSelectedDates([]);
-      setAdditionalDate('');
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
     if (!isOpen || !formData.custno) return;
     const matched = customers.find((c) => c.custno === formData.custno);
     if (matched && matched.location && formData.location !== matched.location) {
@@ -298,9 +291,11 @@ export default function ScheduleFormModal({
   const handleDateRangeChange = (start: string, end: string) => {
     setFormData(prev => ({ ...prev, startDate: start, endDate: end }));
     
-    // 날짜 범위로부터 날짜 목록 자동 생성
-    const dates = generateDateRange(start, end, formData.holiday ?? true);
-    setSelectedDates(dates);
+    // 날짜 범위로부터 날짜 목록 자동 생성 (시작일과 종료일이 모두 있을 때만)
+    if (start && end) {
+      const dates = generateDateRange(start, end, formData.holiday ?? true);
+      setSelectedDates(dates);
+    }
   };
 
   // 주말 체크박스 변경 핸들러
