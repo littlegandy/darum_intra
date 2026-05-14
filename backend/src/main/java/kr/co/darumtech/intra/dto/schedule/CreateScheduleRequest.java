@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * 스케줄 생성 요청 DTO
@@ -28,11 +29,23 @@ public class CreateScheduleRequest {
     private String contents;
     private String location;
 
-    @NotNull(message = "시작 날짜는 필수입니다")
+    /**
+     * 시작 날짜 (범위 방식 사용 시)
+     * dates 필드가 있으면 무시됨
+     */
     private LocalDate startDate;
 
-    @NotNull(message = "종료 날짜는 필수입니다")
+    /**
+     * 종료 날짜 (범위 방식 사용 시)
+     * dates 필드가 있으면 무시됨
+     */
     private LocalDate endDate;
+
+    /**
+     * 개별 날짜 목록 (직접 선택 방식)
+     * 이 필드가 있으면 startDate/endDate보다 우선 처리됨
+     */
+    private List<LocalDate> dates;
 
     private LocalTime stime;
     private LocalTime rtime;
