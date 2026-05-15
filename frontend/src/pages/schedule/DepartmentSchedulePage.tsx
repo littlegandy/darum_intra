@@ -421,7 +421,7 @@ export default function DepartmentSchedulePage() {
                                 {empSchedules.map((s) => (
                                   <div
                                     key={s.no}
-                                    className={`${user?.empno === s.empno ? 'cursor-pointer hover:font-semibold' : ''} truncate whitespace-nowrap`}
+                                    className={`${user?.empno === s.empno ? 'cursor-pointer hover:font-semibold' : ''} break-words`}
                                     onClick={() => {
                                       if (user?.empno !== s.empno) return;
                                       setSelectedSchedule(s);
