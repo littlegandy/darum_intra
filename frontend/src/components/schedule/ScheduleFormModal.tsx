@@ -279,18 +279,21 @@ export default function ScheduleFormModal({
   // 날짜 범위 생성 함수
   const generateDateRange = (start: string, end: string, includeWeekends: boolean): string[] => {
     const dates: string[] = [];
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    
+    const startDate = new Date(`${start}T00:00:00`);
+    const endDate = new Date(`${end}T00:00:00`);
+
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dayOfWeek = d.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      
+
       if (includeWeekends || !isWeekend) {
-        dates.push(d.toISOString().split('T')[0]);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        dates.push(`${y}-${m}-${day}`);
       }
     }
-    
+
     return dates;
   };
 
@@ -545,7 +548,7 @@ export default function ScheduleFormModal({
                 
                 <div className="flex flex-wrap gap-2">
                   {selectedDates.map(date => {
-                    const dateObj = new Date(date);
+                    const dateObj = new Date(`${date}T00:00:00`);
                     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
                     const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
                     
