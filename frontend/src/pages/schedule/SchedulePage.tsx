@@ -211,7 +211,7 @@ export default function SchedulePage() {
                 onClick={handleBulkDelete}
                 className="rounded bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
               >
-                선택 삭제 ({selectedIds.size})
+                {t('schedule.action.bulkDelete', { count: selectedIds.size })}
               </button>
             )}
           </div>

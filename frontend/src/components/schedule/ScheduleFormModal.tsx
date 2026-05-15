@@ -366,7 +366,7 @@ export default function ScheduleFormModal({
     // 날짜 검증 (create 모드일 때만)
     if (mode === 'create') {
       if (selectedDates.length === 0) {
-        setError('최소 1개 이상의 날짜를 선택해야 합니다');
+        setError(t('scheduleForm.errorNoDates'));
         return;
       }
     } else {
