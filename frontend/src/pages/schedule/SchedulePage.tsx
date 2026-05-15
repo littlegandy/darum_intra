@@ -150,6 +150,7 @@ export default function SchedulePage() {
       loadSchedules();
     } catch (err: any) {
       pushToast(err.response?.data?.message || t('schedule.error.load'), 'error');
+      loadSchedules();
     }
   };
 
