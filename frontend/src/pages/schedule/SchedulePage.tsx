@@ -7,6 +7,7 @@ import {
 } from '../../api/scheduleApi';
 import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../../types';
 import ScheduleFormModal from '../../components/schedule/ScheduleFormModal';
+import DeleteConfirmModal from '../../components/schedule/DeleteConfirmModal';
 import { useI18n } from '../../i18n/i18n';
 import DateRangePicker from '../../components/shared/DateRangePicker';
 import { useToast } from '../../components/shared/ToastProvider';
@@ -22,6 +23,8 @@ export default function SchedulePage() {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | undefined>();
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Schedule | undefined>();
 
   const toLocalDateString = (date: Date) => {
     const year = date.getFullYear();
@@ -101,17 +104,26 @@ export default function SchedulePage() {
     });
   };
 
-  const handleDelete = async (schedule: Schedule) => {
-    const startNo = schedule.startNo ?? 0;
-    const deleteGroup = startNo > 0;
-    const confirmed = confirm(
-      deleteGroup ? t('schedule.confirm.deleteGroup') : t('schedule.confirm.deleteSingle')
-    );
+  const handleDelete = (schedule: Schedule) => {
+    const groupCount = schedules.filter(s => {
+      const key = s.startNo && s.startNo !== 0 ? s.startNo : s.no;
+      const targetKey = schedule.startNo && schedule.startNo !== 0 ? schedule.startNo : schedule.no;
+      return key === targetKey;
+    }).length;
 
-    if (!confirmed) {
-      return false;
+    if (groupCount > 1) {
+      // 그룹 일정 → DeleteConfirmModal
+      setDeleteTarget(schedule);
+      setShowDeleteModal(true);
+    } else {
+      // 단일 일정 → 기존 confirm()
+      if (confirm(t('schedule.confirm.deleteSingle'))) {
+        void doDelete(schedule, false);
+      }
     }
+  };
 
+  const doDelete = async (schedule: Schedule, deleteGroup: boolean) => {
     try {
       await deleteScheduleWithGroup(schedule.no, deleteGroup);
       pushToast(deleteGroup ? t('schedule.alert.deletedGroup') : t('schedule.alert.deleted'), 'success');
@@ -120,11 +132,10 @@ export default function SchedulePage() {
         next.delete(schedule.no);
         return next;
       });
+      setShowDeleteModal(false);
       loadSchedules();
-      return true;
     } catch (err: any) {
       pushToast(err.response?.data?.message || t('schedule.error.load'), 'error');
-      return false;
     }
   };
 
@@ -380,13 +391,35 @@ export default function SchedulePage() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         onDelete={async (schedule) => {
-          const deleted = await handleDelete(schedule);
-          if (deleted) {
-            setIsModalOpen(false);
-          }
+          setIsModalOpen(false);
+          handleDelete(schedule);
         }}
         schedule={selectedSchedule}
         mode={modalMode}
+      />
+
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        groupCount={schedules.filter(s => {
+          if (!deleteTarget) return false;
+          const key = s.startNo && s.startNo !== 0 ? s.startNo : s.no;
+          const targetKey = deleteTarget.startNo && deleteTarget.startNo !== 0 ? deleteTarget.startNo : deleteTarget.no;
+          return key === targetKey;
+        }).length}
+        onDeleteSingle={() => {
+          if (deleteTarget) {
+            void doDelete(deleteTarget, false);
+          }
+        }}
+        onDeleteAll={() => {
+          if (deleteTarget) {
+            void doDelete(deleteTarget, true);
+          }
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteTarget(undefined);
+        }}
       />
     </div>
   );
