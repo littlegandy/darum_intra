@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { getMySchedules, updateSchedule, deleteScheduleWithGroup } from '../../api/scheduleApi';
 import type { Schedule, UpdateScheduleRequest } from '../../types';
 import ScheduleFormModal from '../../components/schedule/ScheduleFormModal';
+import DeleteConfirmModal from '../../components/schedule/DeleteConfirmModal';
 import { useAuthStore } from '../../store/authStore';
 import { useI18n } from '../../i18n/i18n';
 import { useToast } from '../../components/shared/ToastProvider';
@@ -49,6 +50,8 @@ const CalendarPage = () => {
   const { user } = useAuthStore();
   const { pushToast } = useToast();
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ schedule: Schedule; groupCount: number } | null>(null);
 
   const dayNames = useMemo(() => ([
     t('calendar.day.sun'),
@@ -206,17 +209,22 @@ const CalendarPage = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = async (schedule: Schedule) => {
-    const startNo = schedule.startNo ?? 0;
-    const deleteGroup = startNo > 0;
-    const confirmed = confirm(
-      deleteGroup ? t('schedule.confirm.deleteGroup') : t('schedule.confirm.deleteSingle')
-    );
+  const handleDelete = (schedule: Schedule) => {
+    const groupCount = schedules.filter(s => {
+      const key = s.startNo && s.startNo !== 0 ? s.startNo : s.no;
+      const targetKey = schedule.startNo && schedule.startNo !== 0 ? schedule.startNo : schedule.no;
+      return key === targetKey;
+    }).length;
 
-    if (!confirmed) {
-      return false;
+    if (groupCount > 1) {
+      setDeleteTarget({ schedule, groupCount });
+      setShowDeleteModal(true);
+    } else {
+      doDelete(schedule, false);
     }
+  };
 
+  const doDelete = async (schedule: Schedule, deleteGroup: boolean) => {
     try {
       await deleteScheduleWithGroup(schedule.no, deleteGroup);
       pushToast(deleteGroup ? t('schedule.alert.deletedGroup') : t('schedule.alert.deleted'), 'success');
@@ -402,10 +410,8 @@ const CalendarPage = () => {
             loadSchedules();
           }}
           onDelete={async (schedule) => {
-            const deleted = await handleDelete(schedule);
-            if (deleted) {
-              setModalOpen(false);
-            }
+            handleDelete(schedule);
+            setModalOpen(false);
           }}
         />
       )}
@@ -449,6 +455,27 @@ const CalendarPage = () => {
           )}
         </div>
       )}
+
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        groupCount={deleteTarget?.groupCount ?? 0}
+        onDeleteSingle={() => {
+          if (deleteTarget) {
+            setShowDeleteModal(false);
+            doDelete(deleteTarget.schedule, false);
+          }
+        }}
+        onDeleteAll={() => {
+          if (deleteTarget) {
+            setShowDeleteModal(false);
+            doDelete(deleteTarget.schedule, true);
+          }
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 };
