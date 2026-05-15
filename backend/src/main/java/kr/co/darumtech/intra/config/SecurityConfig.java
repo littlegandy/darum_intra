@@ -72,7 +72,10 @@ public class SecurityConfig {
                 "http://localhost:80",
                 "http://localhost:3000",
                 "https://intra.darumtech.co.kr",
-                "http://intra.darumtech.co.kr"
+                "http://intra.darumtech.co.kr",
+                "http://192.168.3.9",
+                "http://192.168.3.9:80"
+
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

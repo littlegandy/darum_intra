@@ -77,6 +77,7 @@ export interface UpdateScheduleRequest {
   etime?: string;
   startNo?: number;
   holiday?: boolean;
+  applyGroup?: boolean;
 }
 
 /**

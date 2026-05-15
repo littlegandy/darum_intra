@@ -3,16 +3,22 @@ services:
     image: icr.io/db2_community/db2
     container_name: db2-intra
     privileged: true
+    hostname: db2-intra
     environment:
       LICENSE: accept
       DB2INST1_PASSWORD: db2inst1
       DBNAME: INTRA
     ports:
       - "25010:50000"
+    entrypoint: ["/bin/bash", "/var/db2_setup/lib/db2-entrypoint.sh"]
     volumes:
       - db2_data:/database
       - ./init/01_init_schema.sh:/var/custom/01_init_schema.sh
       - ./init/create_schema.sql:/tmp/init_schema.sql
+      - ./init/seed_data.sql:/tmp/seed_data.sql
+      - ./init/02_seed_data.sh:/var/custom/02_seed_data.sh
+      - ./init/db2-entrypoint.sh:/var/db2_setup/lib/db2-entrypoint.sh
+    stop_grace_period: 2m
     healthcheck:
       test: ["CMD-SHELL", "su - db2inst1 -c \"db2 connect to INTRA && db2 disconnect INTRA\""]
       interval: 30s
