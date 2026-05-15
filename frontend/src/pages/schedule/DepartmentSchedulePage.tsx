@@ -393,27 +393,25 @@ export default function DepartmentSchedulePage() {
                                 <span className="text-xs text-gray-500 whitespace-nowrap">{emp.jobgradeName || '-'}</span>
                               </div>
                             </td>
-                            <td className="w-32 px-4 py-3 text-center text-sm text-gray-900 align-top">
-                              <div className="space-y-1">
-                                {empSchedules.map((s) => {
-                                  return (
-                                    <div
-                                      key={s.no}
-                                      className="truncate whitespace-nowrap text-sm text-gray-900 text-center"
-                                      title={s.customerName || '-'}
-                                    >
-                                      {s.customerName || '-'}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </td>
-                            <td className="w-28 px-4 py-3 text-center text-sm text-gray-900 align-top">
-                              <div className="space-y-1">
+                            <td className="w-32 px-4 py-0 text-center text-sm text-gray-900 align-top">
+                              <div className="divide-y divide-gray-100">
                                 {empSchedules.map((s) => (
                                   <div
                                     key={s.no}
-                                    className="truncate whitespace-nowrap text-sm text-gray-900 text-center"
+                                    className="truncate whitespace-nowrap py-3 text-center text-sm text-gray-900"
+                                    title={s.customerName || '-'}
+                                  >
+                                    {s.customerName || '-'}
+                                  </div>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="w-28 px-4 py-0 text-center text-sm text-gray-900 align-top">
+                              <div className="divide-y divide-gray-100">
+                                {empSchedules.map((s) => (
+                                  <div
+                                    key={s.no}
+                                    className="truncate whitespace-nowrap py-3 text-center text-sm text-gray-900"
                                     title={s.productName || '-'}
                                   >
                                     {s.productName || '-'}
@@ -421,12 +419,12 @@ export default function DepartmentSchedulePage() {
                                 ))}
                               </div>
                             </td>
-                            <td className="w-56 px-4 py-3 text-sm text-gray-900 align-top">
-                              <div className="space-y-1">
+                            <td className="w-56 px-4 py-0 text-sm text-gray-900 align-top">
+                              <div className="divide-y divide-gray-100">
                                 {empSchedules.map((s) => (
                                   <div
                                     key={s.no}
-                                    className="cursor-pointer truncate whitespace-nowrap hover:font-semibold"
+                                    className="cursor-pointer truncate whitespace-nowrap py-3 hover:font-semibold"
                                     onClick={() => {
                                       if (user?.empno === s.empno) {
                                         setSelectedSchedule(s);
@@ -442,23 +440,23 @@ export default function DepartmentSchedulePage() {
                                 ))}
                               </div>
                             </td>
-                            <td className="w-32 px-4 py-3 text-center text-sm text-gray-900 align-top">
-                              <div className="space-y-1">
+                            <td className="w-32 px-4 py-0 text-center text-sm text-gray-900 align-top">
+                              <div className="divide-y divide-gray-100">
                                 {empSchedules.map((s) => (
                                   <div
                                     key={s.no}
                                     title={s.location || '-'}
-                                    className="truncate whitespace-nowrap text-sm text-gray-900 text-center"
+                                    className="truncate whitespace-nowrap py-3 text-center text-sm text-gray-900"
                                   >
-                                    <span>{s.location || '-'}</span>
+                                    {s.location || '-'}
                                   </div>
                                 ))}
                               </div>
                             </td>
-                            <td className="w-28 px-4 py-3 text-center text-sm text-gray-900 align-top">
-                              <div className="space-y-1">
+                            <td className="w-28 px-4 py-0 text-center text-sm text-gray-900 align-top">
+                              <div className="divide-y divide-gray-100">
                                 {empSchedules.map((s) => (
-                                  <div key={s.no} className="text-center">
+                                  <div key={s.no} className="py-3 text-center">
                                     <span>
                                       {s.stime && s.etime
                                         ? `${s.stime.substring(0, 5)} - ${s.etime.substring(0, 5)}`
