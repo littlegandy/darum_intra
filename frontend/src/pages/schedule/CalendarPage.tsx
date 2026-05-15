@@ -464,13 +464,13 @@ const CalendarPage = () => {
         onDeleteSingle={() => {
           if (deleteTarget) {
             setShowDeleteModal(false);
-            doDelete(deleteTarget.schedule, false);
+            void doDelete(deleteTarget.schedule, false);
           }
         }}
         onDeleteAll={() => {
           if (deleteTarget) {
             setShowDeleteModal(false);
-            doDelete(deleteTarget.schedule, true);
+            void doDelete(deleteTarget.schedule, true);
           }
         }}
         onCancel={() => {
