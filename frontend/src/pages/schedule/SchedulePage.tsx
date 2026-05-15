@@ -128,6 +128,20 @@ export default function SchedulePage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (!confirm(`선택한 ${selectedIds.size}개 일정을 삭제하시겠습니까?`)) return;
+    try {
+      for (const id of selectedIds) {
+        await deleteScheduleWithGroup(id, false); // 항상 단건 처리
+      }
+      pushToast(`${selectedIds.size}개 일정이 삭제되었습니다.`, 'success');
+      setSelectedIds(new Set());
+      loadSchedules();
+    } catch (err: any) {
+      pushToast(err.response?.data?.message || t('schedule.error.load'), 'error');
+    }
+  };
+
   const handleFormSubmit = async (
     data: CreateScheduleRequest | UpdateScheduleRequest
   ) => {
@@ -179,6 +193,14 @@ export default function SchedulePage() {
                 <span className="text-base font-semibold text-blue-600">{schedules.length}</span>
                 <span className="ml-2">{t('schedule.total')}</span>
               </div>
+            )}
+            {selectedIds.size > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="rounded bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
+              >
+                선택 삭제 ({selectedIds.size})
+              </button>
             )}
           </div>
         </div>
