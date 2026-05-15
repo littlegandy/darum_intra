@@ -140,12 +140,12 @@ export default function SchedulePage() {
   };
 
   const handleBulkDelete = async () => {
-    if (!confirm(`선택한 ${selectedIds.size}개 일정을 삭제하시겠습니까?`)) return;
+    if (!confirm(t('schedule.confirm.bulkDelete', { count: selectedIds.size }))) return;
     try {
       for (const id of selectedIds) {
         await deleteScheduleWithGroup(id, false); // 항상 단건 처리
       }
-      pushToast(`${selectedIds.size}개 일정이 삭제되었습니다.`, 'success');
+      pushToast(t('schedule.alert.bulkDeleted', { count: selectedIds.size }), 'success');
       setSelectedIds(new Set());
       loadSchedules();
     } catch (err: any) {

@@ -535,14 +535,14 @@ export default function ScheduleFormModal({
               <div className="rounded border border-gray-200 bg-gray-50 p-3">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">
-                    선택된 날짜 ({selectedDates.length}개)
+                    {t('scheduleForm.selectedDates', { count: selectedDates.length })}
                   </span>
                   <button
                     type="button"
                     onClick={() => setSelectedDates([])}
                     className="text-xs text-red-600 hover:text-red-800"
                   >
-                    전체 삭제
+                    {t('scheduleForm.clearAll')}
                   </button>
                 </div>
                 
@@ -571,7 +571,7 @@ export default function ScheduleFormModal({
                 </div>
                 
                 <div className="mt-2 text-xs text-gray-500">
-                  💡 날짜를 클릭하면 제거됩니다. 범위를 다시 선택하면 목록이 초기화됩니다.
+                  {t('scheduleForm.dateHint')}
                 </div>
               </div>
             )}
@@ -580,7 +580,7 @@ export default function ScheduleFormModal({
             {mode === 'create' && (
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700">
-                  개별 날짜 추가:
+                  {t('scheduleForm.addDate')}
                 </label>
                 <input
                   type="date"
@@ -594,7 +594,7 @@ export default function ScheduleFormModal({
                   disabled={!additionalDate}
                   className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
-                  추가
+                  {t('scheduleForm.add')}
                 </button>
               </div>
             )}
