@@ -575,8 +575,10 @@ export default function DepartmentSchedulePage() {
           onSubmit={async (data: CreateScheduleRequest | UpdateScheduleRequest) => {
             if (modalMode === 'create') {
               await createSchedule(data as CreateScheduleRequest);
+              pushToast(t('schedule.alert.created'), 'success');
             } else if (selectedSchedule) {
               await updateSchedule(selectedSchedule.no, data as UpdateScheduleRequest);
+              pushToast(t('schedule.alert.updated'), 'success');
             }
             setModalOpen(false);
             loadSchedules();
