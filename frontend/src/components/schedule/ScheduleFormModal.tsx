@@ -573,26 +573,28 @@ export default function ScheduleFormModal({
               </div>
             )}
 
-            {/* 개별 날짜 추가 */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">
-                개별 날짜 추가:
-              </label>
-              <input
-                type="date"
-                value={additionalDate}
-                onChange={(e) => setAdditionalDate(e.target.value)}
-                className="rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="button"
-                onClick={handleAddDate}
-                disabled={!additionalDate}
-                className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
-                추가
-              </button>
-            </div>
+            {/* 개별 날짜 추가 (생성 모드 전용) */}
+            {mode === 'create' && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">
+                  개별 날짜 추가:
+                </label>
+                <input
+                  type="date"
+                  value={additionalDate}
+                  onChange={(e) => setAdditionalDate(e.target.value)}
+                  className="rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddDate}
+                  disabled={!additionalDate}
+                  className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  추가
+                </button>
+              </div>
+            )}
 
             <label className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-200 px-3 py-2">
               <input
