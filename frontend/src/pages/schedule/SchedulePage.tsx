@@ -21,6 +21,7 @@ export default function SchedulePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | undefined>();
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const toLocalDateString = (date: Date) => {
     const year = date.getFullYear();
@@ -48,6 +49,7 @@ export default function SchedulePage() {
     try {
       setLoading(true);
       setError(null);
+      setSelectedIds(new Set()); // 체크 상태 초기화
       const data = await getMySchedules(startDate, endDate);
       const sorted = [...data].sort((a, b) => {
         if (a.workDate === b.workDate) {
@@ -98,6 +100,11 @@ export default function SchedulePage() {
     try {
       await deleteScheduleWithGroup(schedule.no, deleteGroup);
       pushToast(deleteGroup ? t('schedule.alert.deletedGroup') : t('schedule.alert.deleted'), 'success');
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        next.delete(schedule.no);
+        return next;
+      });
       loadSchedules();
       return true;
     } catch (err: any) {
