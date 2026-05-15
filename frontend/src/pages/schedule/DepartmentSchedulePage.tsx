@@ -287,13 +287,13 @@ export default function DepartmentSchedulePage() {
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0">
-                                    <div className="text-sm font-semibold text-gray-900 truncate">
+                                    <div className="text-sm font-semibold text-gray-900 break-words">
                                       {s.contents || '-'}
                                     </div>
                                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
-                                      <span className="truncate">{t('schedule.table.customer')}: {s.customerName || '-'}</span>
-                                      <span className="truncate">{t('schedule.table.product')}: {s.productName || '-'}</span>
-                                      <span className="truncate">{t('schedule.table.location')}: {s.location || '-'}</span>
+                                      <span className="break-words">{t('schedule.table.customer')}: {s.customerName || '-'}</span>
+                                      <span className="break-words">{t('schedule.table.product')}: {s.productName || '-'}</span>
+                                      <span className="break-words">{t('schedule.table.location')}: {s.location || '-'}</span>
                                     </div>
                                   </div>
                                   <div className="shrink-0 text-xs font-semibold text-gray-700">
