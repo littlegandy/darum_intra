@@ -86,6 +86,21 @@ export default function SchedulePage() {
     setIsModalOpen(true);
   };
 
+  // 체크박스 헬퍼 함수
+  const allChecked = schedules.length > 0 && selectedIds.size === schedules.length;
+
+  const toggleAll = () => {
+    setSelectedIds(allChecked ? new Set() : new Set(schedules.map(s => s.no)));
+  };
+
+  const toggleOne = (no: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(no) ? next.delete(no) : next.add(no);
+      return next;
+    });
+  };
+
   const handleDelete = async (schedule: Schedule) => {
     const startNo = schedule.startNo ?? 0;
     const deleteGroup = startNo > 0;
@@ -196,35 +211,48 @@ export default function SchedulePage() {
                 className="p-4 cursor-pointer hover:bg-gray-50"
                 onClick={() => handleEdit(schedule)}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    {(() => {
-                      const { label, colorClass } = formatWorkDate(schedule.workDate);
-                      return <div className={`text-sm font-semibold ${colorClass}`}>{label}</div>;
-                    })()}
-                    <div className="mt-1 text-sm text-gray-900 truncate">
-                      {schedule.contents || '-'}
-                    </div>
-                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
-                      <span className="truncate">
-                        {t('schedule.table.time')}: {schedule.stime?.substring(0, 5) || '-'}
-                        {schedule.etime ? ` - ${schedule.etime.substring(0, 5)}` : ''}
-                      </span>
-                      <span className="truncate">{t('schedule.table.customer')}: {schedule.customerName || '-'}</span>
-                      <span className="truncate">{t('schedule.table.product')}: {schedule.productName || '-'}</span>
-                      <span className="truncate">{t('schedule.table.location')}: {schedule.location || '-'}</span>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex shrink-0 items-start pt-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(schedule.no)}
+                      onChange={() => toggleOne(schedule.no)}
+                      className="rounded border-gray-300"
+                    />
                   </div>
-                  <div className="flex shrink-0 flex-col gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        void handleDelete(schedule);
-                      }}
-                      className="rounded border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
-                    >
-                      {t('schedule.action.delete')}
-                    </button>
+                  <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      {(() => {
+                        const { label, colorClass } = formatWorkDate(schedule.workDate);
+                        return <div className={`text-sm font-semibold ${colorClass}`}>{label}</div>;
+                      })()}
+                      <div className="mt-1 text-sm text-gray-900 truncate">
+                        {schedule.contents || '-'}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
+                        <span className="truncate">
+                          {t('schedule.table.time')}: {schedule.stime?.substring(0, 5) || '-'}
+                          {schedule.etime ? ` - ${schedule.etime.substring(0, 5)}` : ''}
+                        </span>
+                        <span className="truncate">{t('schedule.table.customer')}: {schedule.customerName || '-'}</span>
+                        <span className="truncate">{t('schedule.table.product')}: {schedule.productName || '-'}</span>
+                        <span className="truncate">{t('schedule.table.location')}: {schedule.location || '-'}</span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-col gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void handleDelete(schedule);
+                        }}
+                        className="rounded border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
+                      >
+                        {t('schedule.action.delete')}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -235,6 +263,14 @@ export default function SchedulePage() {
             <table className="w-full min-w-[1120px] table-fixed divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="w-10 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      checked={allChecked}
+                      onChange={toggleAll}
+                      className="rounded border-gray-300"
+                    />
+                  </th>
                   <th className="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t('schedule.table.date')}
                   </th>
@@ -265,6 +301,14 @@ export default function SchedulePage() {
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleEdit(schedule)}
                   >
+                    <td className="px-3 py-4" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(schedule.no)}
+                        onChange={() => toggleOne(schedule.no)}
+                        className="rounded border-gray-300"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {(() => {
                         const { label, colorClass } = formatWorkDate(schedule.workDate);
