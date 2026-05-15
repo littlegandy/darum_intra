@@ -182,6 +182,9 @@ export default function ScheduleFormModal({
       if (draft) {
         try {
           const parsed = JSON.parse(draft);
+          const initStart = parsed.startDate || defaultStartDate || defaults.startDate;
+          const initEnd = parsed.endDate || defaultEndDate || defaults.endDate;
+          const initHoliday = parsed.holiday ?? true;
           setFormData({
             empno: user?.empno || 0,
             custno: parsed.custno,
@@ -189,18 +192,21 @@ export default function ScheduleFormModal({
             suppno: parsed.suppno,
             contents: parsed.contents || '',
             location: parsed.location || '',
-            startDate: parsed.startDate || defaultStartDate || defaults.startDate,
-            endDate: parsed.endDate || defaultEndDate || defaults.endDate,
+            startDate: initStart,
+            endDate: initEnd,
             stime: parsed.stime?.slice(0, 5) || defaults.stime,
             etime: parsed.etime?.slice(0, 5) || defaults.etime,
-            holiday: parsed.holiday ?? true,
+            holiday: initHoliday,
           });
+          setSelectedDates(generateDateRange(initStart, initEnd, initHoliday));
           return;
         } catch {
           localStorage.removeItem(draftKey);
         }
       }
       const freshDefaults = getDefaultDateTimes();
+      const initStart = defaultStartDate || freshDefaults.startDate;
+      const initEnd = defaultEndDate || freshDefaults.endDate;
       setFormData({
         empno: user?.empno || 0,
         custno: undefined,
@@ -208,12 +214,13 @@ export default function ScheduleFormModal({
         suppno: undefined,
         contents: '',
         location: '',
-        startDate: defaultStartDate || freshDefaults.startDate,
-        endDate: defaultEndDate || freshDefaults.endDate,
+        startDate: initStart,
+        endDate: initEnd,
         stime: freshDefaults.stime,
         etime: freshDefaults.etime,
         holiday: true,
       });
+      setSelectedDates(generateDateRange(initStart, initEnd, true));
     }
   }, [isOpen, mode, schedule, user, defaults, defaultStartDate, defaultEndDate, draftKey]);
 
