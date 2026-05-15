@@ -391,8 +391,8 @@ export default function SchedulePage() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         onDelete={async (schedule) => {
-          handleDelete(schedule);
           setIsModalOpen(false);
+          handleDelete(schedule);
         }}
         schedule={selectedSchedule}
         mode={modalMode}
