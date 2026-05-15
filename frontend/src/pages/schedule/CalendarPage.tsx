@@ -220,7 +220,9 @@ const CalendarPage = () => {
       setDeleteTarget({ schedule, groupCount });
       setShowDeleteModal(true);
     } else {
-      doDelete(schedule, false);
+      if (confirm(t('schedule.confirm.deleteSingle'))) {
+        void doDelete(schedule, false);
+      }
     }
   };
 
