@@ -184,7 +184,11 @@ export default function SchedulePage() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="divide-y divide-gray-100 sm:hidden">
             {schedules.map((schedule) => (
-              <div key={schedule.no} className="p-4">
+              <div
+                key={schedule.no}
+                className="p-4 cursor-pointer hover:bg-gray-50"
+                onClick={() => handleEdit(schedule)}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     {(() => {
@@ -206,13 +210,8 @@ export default function SchedulePage() {
                   </div>
                   <div className="flex shrink-0 flex-col gap-2">
                     <button
-                      onClick={() => handleEdit(schedule)}
-                      className="rounded border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700"
-                    >
-                      {t('schedule.action.edit')}
-                    </button>
-                    <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         void handleDelete(schedule);
                       }}
                       className="rounded border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
@@ -254,7 +253,11 @@ export default function SchedulePage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {schedules.map((schedule) => (
-                  <tr key={schedule.no} className="hover:bg-gray-50">
+                  <tr
+                    key={schedule.no}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleEdit(schedule)}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {(() => {
                         const { label, colorClass } = formatWorkDate(schedule.workDate);
@@ -282,13 +285,8 @@ export default function SchedulePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
-                        onClick={() => handleEdit(schedule)}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
-                      >
-                        {t('schedule.action.edit')}
-                      </button>
-                      <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           void handleDelete(schedule);
                         }}
                         className="text-red-600 hover:text-red-900"
@@ -320,3 +318,4 @@ export default function SchedulePage() {
     </div>
   );
 }
+
