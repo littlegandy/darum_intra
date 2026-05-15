@@ -40,6 +40,8 @@ export default function DepartmentSchedulePage() {
     toLocalDateString(new Date())
   );
 
+  const [contentModal, setContentModal] = useState<{ open: boolean; schedule: Schedule | null }>({ open: false, schedule: null });
+
   useEffect(() => {
     loadDepartments();
     loadEmployees();
@@ -276,24 +278,27 @@ export default function DepartmentSchedulePage() {
                                 key={s.no}
                                 type="button"
                                 onClick={() => {
-                                  if (!isCurrentUser) return;
-                                  setSelectedSchedule(s);
-                                  setModalMode('edit');
-                                  setModalOpen(true);
+                                  if (isCurrentUser) {
+                                    setSelectedSchedule(s);
+                                    setModalMode('edit');
+                                    setModalOpen(true);
+                                  } else {
+                                    setContentModal({ open: true, schedule: s });
+                                  }
                                 }}
                                 className={`w-full rounded border px-3 py-2 text-left ${
-                                  isCurrentUser ? 'bg-white hover:bg-gray-50' : 'bg-gray-50'
+                                  isCurrentUser ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100'
                                 }`}
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0">
-                                    <div className="text-sm font-semibold text-gray-900 break-words">
+                                    <div className="text-sm font-semibold text-gray-900 truncate">
                                       {s.contents || '-'}
                                     </div>
                                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
-                                      <span className="break-words">{t('schedule.table.customer')}: {s.customerName || '-'}</span>
-                                      <span className="break-words">{t('schedule.table.product')}: {s.productName || '-'}</span>
-                                      <span className="break-words">{t('schedule.table.location')}: {s.location || '-'}</span>
+                                      <span className="truncate">{t('schedule.table.customer')}: {s.customerName || '-'}</span>
+                                      <span className="truncate">{t('schedule.table.product')}: {s.productName || '-'}</span>
+                                      <span className="truncate">{t('schedule.table.location')}: {s.location || '-'}</span>
                                     </div>
                                   </div>
                                   <div className="shrink-0 text-xs font-semibold text-gray-700">
@@ -421,12 +426,15 @@ export default function DepartmentSchedulePage() {
                                 {empSchedules.map((s) => (
                                   <div
                                     key={s.no}
-                                    className={`${user?.empno === s.empno ? 'cursor-pointer hover:font-semibold' : ''} break-words`}
+                                    className="cursor-pointer truncate whitespace-nowrap hover:font-semibold"
                                     onClick={() => {
-                                      if (user?.empno !== s.empno) return;
-                                      setSelectedSchedule(s);
-                                      setModalMode('edit');
-                                      setModalOpen(true);
+                                      if (user?.empno === s.empno) {
+                                        setSelectedSchedule(s);
+                                        setModalMode('edit');
+                                        setModalOpen(true);
+                                      } else {
+                                        setContentModal({ open: true, schedule: s });
+                                      }
                                     }}
                                   >
                                     {s.contents || '-'}
@@ -471,6 +479,57 @@ export default function DepartmentSchedulePage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {contentModal.open && contentModal.schedule && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setContentModal({ open: false, schedule: null })}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <div>
+                <p className="text-xs text-gray-500">{contentModal.schedule.employeeName}</p>
+                <p className="font-semibold text-gray-900">{contentModal.schedule.workDate}</p>
+              </div>
+              <button
+                onClick={() => setContentModal({ open: false, schedule: null })}
+                className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-3 px-5 py-4 text-sm text-gray-700">
+              <div>
+                <span className="text-xs font-medium text-gray-400">{t('schedule.table.customer')}</span>
+                <p className="mt-0.5">{contentModal.schedule.customerName || '-'}</p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-gray-400">{t('schedule.table.product')}</span>
+                <p className="mt-0.5">{contentModal.schedule.productName || '-'}</p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-gray-400">{t('schedule.table.location')}</span>
+                <p className="mt-0.5">{contentModal.schedule.location || '-'}</p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-gray-400">{t('scheduleForm.contents')}</span>
+                <p className="mt-0.5 whitespace-pre-wrap">{contentModal.schedule.contents || '-'}</p>
+              </div>
+              {contentModal.schedule.stime && contentModal.schedule.etime && (
+                <div>
+                  <span className="text-xs font-medium text-gray-400">{t('scheduleForm.startTime')} - {t('scheduleForm.endTime')}</span>
+                  <p className="mt-0.5">{contentModal.schedule.stime.substring(0, 5)} - {contentModal.schedule.etime.substring(0, 5)}</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
