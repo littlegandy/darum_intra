@@ -193,8 +193,8 @@ export default function DepartmentSchedulePage() {
 
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-          <div className="max-w-full min-w-0 sm:max-w-none">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
               {t('deptSchedule.filter.department')}
             </label>
             <SearchableSelect
@@ -204,6 +204,7 @@ export default function DepartmentSchedulePage() {
                 { value: 0, label: t('employee.filters.all') },
                 ...visibleDepartments.map((dept) => ({ value: dept.deptno, label: dept.deptName })),
               ]}
+              minWidth="10rem"
             />
           </div>
           <div>
