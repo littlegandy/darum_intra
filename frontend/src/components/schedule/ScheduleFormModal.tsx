@@ -269,14 +269,14 @@ export default function ScheduleFormModal({
   };
 
   useEffect(() => {
-    if (!isOpen || !formData.custno) return;
+    if (!isOpen || !formData.custno || mode === 'edit') return;
     const matched = customers.find((c) => c.custno === formData.custno);
     if (matched?.location) {
       setFormData((prev) => ({ ...prev, location: matched.location! }));
     }
     // formData.location은 의도적으로 deps에서 제외 — 포함 시 사용자가 장소 수정할 때마다 고객사 장소로 덮어씌워짐
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customers, formData.custno, isOpen]);
+  }, [customers, formData.custno, isOpen, mode]);
 
   // 날짜 범위 생성 함수
   const generateDateRange = (start: string, end: string, includeWeekends: boolean): string[] => {
