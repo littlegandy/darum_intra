@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   getAllSchedules,
   getDepartmentSchedulesByDate,
@@ -41,9 +41,22 @@ export default function DepartmentSchedulePage() {
     toLocalDateString(new Date())
   );
 
+  const goToPrevDay = () => {
+    const d = new Date(`${selectedDate}T00:00:00`);
+    d.setDate(d.getDate() - 1);
+    setSelectedDate(toLocalDateString(d));
+  };
+
+  const goToNextDay = () => {
+    const d = new Date(`${selectedDate}T00:00:00`);
+    d.setDate(d.getDate() + 1);
+    setSelectedDate(toLocalDateString(d));
+  };
+
   const [contentModal, setContentModal] = useState<{ open: boolean; schedule: Schedule | null }>({ open: false, schedule: null });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Schedule | undefined>();
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     loadDepartments();
@@ -75,16 +88,20 @@ export default function DepartmentSchedulePage() {
   };
 
   const loadSchedules = async () => {
+    const currentId = ++requestIdRef.current;
     try {
       setLoading(true);
       setError(null);
       const data = selectedDeptno === null
         ? await getAllSchedules(selectedDate, selectedDate)
         : await getDepartmentSchedulesByDate(selectedDeptno, selectedDate);
+      if (currentId !== requestIdRef.current) return;
       setSchedules(data);
     } catch (err: any) {
+      if (currentId !== requestIdRef.current) return;
       setError(err.response?.data?.message || t('deptSchedule.error'));
     } finally {
+      if (currentId !== requestIdRef.current) return;
       setLoading(false);
     }
   };
@@ -176,8 +193,8 @@ export default function DepartmentSchedulePage() {
 
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-          <div className="max-w-full min-w-0 sm:max-w-none">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
               {t('deptSchedule.filter.department')}
             </label>
             <SearchableSelect
@@ -187,18 +204,41 @@ export default function DepartmentSchedulePage() {
                 { value: 0, label: t('employee.filters.all') },
                 ...visibleDepartments.map((dept) => ({ value: dept.deptno, label: dept.deptName })),
               ]}
+              minWidth="10rem"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
               {t('deptSchedule.filter.date')}
             </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 sm:w-auto"
-            />
+            <div className="flex items-center gap-1 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={goToPrevDay}
+                className="shrink-0 h-10 w-10 flex items-center justify-center rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
+                aria-label="이전 날"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex-1 min-w-0 h-10 border border-gray-300 rounded px-3 sm:w-auto"
+              />
+              <button
+                type="button"
+                onClick={goToNextDay}
+                className="shrink-0 h-10 w-10 flex items-center justify-center rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
+                aria-label="다음 날"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div className="ml-auto flex items-end gap-3" />
         </div>

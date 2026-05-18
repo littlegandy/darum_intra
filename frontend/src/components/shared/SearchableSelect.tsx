@@ -52,7 +52,7 @@ const SearchableSelect = ({
           setOpen((prev) => !prev);
         }}
         disabled={disabled}
-        className={`w-full min-w-0 rounded border px-3 py-2 text-left flex items-center justify-between ${
+        className={`w-full min-w-0 h-10 rounded border px-3 text-left flex items-center justify-between ${
           disabled
             ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
             : 'border-gray-300 hover:border-blue-400'
