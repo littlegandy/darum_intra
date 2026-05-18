@@ -576,10 +576,8 @@ export default function DepartmentSchedulePage() {
             loadSchedules();
           }}
           onDelete={async (schedule) => {
-            const deleted = await handleDelete(schedule);
-            if (deleted) {
-              setModalOpen(false);
-            }
+            setModalOpen(false);
+            await handleDelete(schedule);
           }}
           schedule={selectedSchedule ?? undefined}
           mode={modalMode}
