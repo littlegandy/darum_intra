@@ -27,6 +27,7 @@ export interface Schedule {
   etime?: string;
   startNo?: number;
   holiday: boolean;
+  groupCount?: number;
 }
 
 /**

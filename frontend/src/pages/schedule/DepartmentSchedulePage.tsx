@@ -126,11 +126,7 @@ export default function DepartmentSchedulePage() {
   };
 
   const handleDelete = async (schedule: Schedule) => {
-    const groupCount = schedules.filter(s => {
-      const key = s.startNo && s.startNo !== 0 ? s.startNo : s.no;
-      const targetKey = schedule.startNo && schedule.startNo !== 0 ? schedule.startNo : schedule.no;
-      return key === targetKey;
-    }).length;
+    const groupCount = schedule.groupCount ?? 1;
 
     if (groupCount > 1) {
       setDeleteTarget(schedule);
@@ -545,11 +541,7 @@ export default function DepartmentSchedulePage() {
 
       <DeleteConfirmModal
         isOpen={showDeleteModal}
-        groupCount={schedules.filter(s => {
-          const key = s.startNo && s.startNo !== 0 ? s.startNo : s.no;
-          const targetKey = deleteTarget?.startNo && deleteTarget.startNo !== 0 ? deleteTarget.startNo : deleteTarget?.no ?? 0;
-          return key === targetKey;
-        }).length}
+        groupCount={deleteTarget?.groupCount ?? 1}
         onDeleteSingle={() => {
           if (deleteTarget) {
             setShowDeleteModal(false);
