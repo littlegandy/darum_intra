@@ -100,4 +100,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     );
 
     List<Schedule> findByStartNo(Long startNo);
+
+    int countByStartNo(Long startNo);
 }

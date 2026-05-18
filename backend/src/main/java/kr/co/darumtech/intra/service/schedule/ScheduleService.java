@@ -460,6 +460,7 @@ public class ScheduleService {
                 .etime(schedule.getEtime())
                 .startNo(schedule.getStartNo())
                 .holiday(schedule.getHoliday())
+                .groupCount(scheduleRepository.countByStartNo(schedule.getStartNo()))
                 .build();
     }
 

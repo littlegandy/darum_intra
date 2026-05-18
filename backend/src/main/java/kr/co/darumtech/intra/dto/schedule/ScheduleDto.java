@@ -48,4 +48,5 @@ public class ScheduleDto {
     private LocalTime etime;
     private Long startNo;
     private Boolean holiday;
+    private int groupCount;
 }
