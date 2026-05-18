@@ -207,14 +207,14 @@ export default function DepartmentSchedulePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
               {t('deptSchedule.filter.date')}
             </label>
             <div className="flex items-center gap-1 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={goToPrevDay}
-                className="shrink-0 rounded border border-gray-300 px-2 py-2 text-gray-600 hover:bg-gray-100"
+                className="shrink-0 h-10 w-10 flex items-center justify-center rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
                 aria-label="이전 날"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,12 +225,12 @@ export default function DepartmentSchedulePage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="flex-1 min-w-0 border border-gray-300 rounded px-3 py-2 sm:w-auto"
+                className="flex-1 min-w-0 h-10 border border-gray-300 rounded px-3 sm:w-auto"
               />
               <button
                 type="button"
                 onClick={goToNextDay}
-                className="shrink-0 rounded border border-gray-300 px-2 py-2 text-gray-600 hover:bg-gray-100"
+                className="shrink-0 h-10 w-10 flex items-center justify-center rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
                 aria-label="다음 날"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
