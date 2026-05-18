@@ -152,13 +152,14 @@ export default function ScheduleFormModal({
     };
   }, [isOpen]);
 
-  // 모달 닫힐 때 날짜 선택 상태 초기화
+  // 모달 닫힐 때 모든 상태 및 draft 초기화
   useEffect(() => {
     if (!isOpen) {
       setSelectedDates([]);
       setAdditionalDate('');
+      localStorage.removeItem(draftKey);
     }
-  }, [isOpen]);
+  }, [isOpen, draftKey]);
 
   useEffect(() => {
     if (!isOpen) return;
