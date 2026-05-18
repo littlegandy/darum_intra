@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   getAllSchedules,
   getDepartmentSchedulesByDate,
@@ -56,6 +56,7 @@ export default function DepartmentSchedulePage() {
   const [contentModal, setContentModal] = useState<{ open: boolean; schedule: Schedule | null }>({ open: false, schedule: null });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Schedule | undefined>();
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     loadDepartments();
@@ -87,16 +88,20 @@ export default function DepartmentSchedulePage() {
   };
 
   const loadSchedules = async () => {
+    const currentId = ++requestIdRef.current;
     try {
       setLoading(true);
       setError(null);
       const data = selectedDeptno === null
         ? await getAllSchedules(selectedDate, selectedDate)
         : await getDepartmentSchedulesByDate(selectedDeptno, selectedDate);
+      if (currentId !== requestIdRef.current) return;
       setSchedules(data);
     } catch (err: any) {
+      if (currentId !== requestIdRef.current) return;
       setError(err.response?.data?.message || t('deptSchedule.error'));
     } finally {
+      if (currentId !== requestIdRef.current) return;
       setLoading(false);
     }
   };
@@ -209,10 +214,12 @@ export default function DepartmentSchedulePage() {
               <button
                 type="button"
                 onClick={goToPrevDay}
-                className="shrink-0 rounded border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100"
+                className="shrink-0 rounded border border-gray-300 px-2 py-2 text-gray-600 hover:bg-gray-100"
                 aria-label="이전 날"
               >
-                ‹
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
               <input
                 type="date"
@@ -223,10 +230,12 @@ export default function DepartmentSchedulePage() {
               <button
                 type="button"
                 onClick={goToNextDay}
-                className="shrink-0 rounded border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100"
+                className="shrink-0 rounded border border-gray-300 px-2 py-2 text-gray-600 hover:bg-gray-100"
                 aria-label="다음 날"
               >
-                ›
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           </div>
