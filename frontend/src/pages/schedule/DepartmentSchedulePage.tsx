@@ -41,6 +41,18 @@ export default function DepartmentSchedulePage() {
     toLocalDateString(new Date())
   );
 
+  const goToPrevDay = () => {
+    const d = new Date(`${selectedDate}T00:00:00`);
+    d.setDate(d.getDate() - 1);
+    setSelectedDate(toLocalDateString(d));
+  };
+
+  const goToNextDay = () => {
+    const d = new Date(`${selectedDate}T00:00:00`);
+    d.setDate(d.getDate() + 1);
+    setSelectedDate(toLocalDateString(d));
+  };
+
   const [contentModal, setContentModal] = useState<{ open: boolean; schedule: Schedule | null }>({ open: false, schedule: null });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Schedule | undefined>();
@@ -193,12 +205,30 @@ export default function DepartmentSchedulePage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('deptSchedule.filter.date')}
             </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 sm:w-auto"
-            />
+            <div className="flex items-center gap-1 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={goToPrevDay}
+                className="shrink-0 rounded border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100"
+                aria-label="이전 날"
+              >
+                ‹
+              </button>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex-1 min-w-0 border border-gray-300 rounded px-3 py-2 sm:w-auto"
+              />
+              <button
+                type="button"
+                onClick={goToNextDay}
+                className="shrink-0 rounded border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100"
+                aria-label="다음 날"
+              >
+                ›
+              </button>
+            </div>
           </div>
           <div className="ml-auto flex items-end gap-3" />
         </div>
